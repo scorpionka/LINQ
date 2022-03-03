@@ -38,20 +38,28 @@ namespace Task1
                 .Select(z =>
                 (
                     z,
-                    suppliers.Where(w => w.City == z.City && w.Country == z.Country)
+                    suppliers
+                    .Where(w => w.City == z.City && w.Country == z.Country)
                 ));
         }
 
         public static IEnumerable<Customer> Linq3(IEnumerable<Customer> customers, decimal limit)
         {
-            return customers.Where(x => x.Orders.Any(y => y.Total > limit));
+            return customers
+                .Where(x => x.Orders
+                .Any(y => y.Total > limit));
         }
 
         public static IEnumerable<(Customer customer, DateTime dateOfEntry)> Linq4(
             IEnumerable<Customer> customers
         )
         {
-            throw new NotImplementedException();
+            return customers.Where(x => x.Orders.Any())
+                .Select(y =>
+                (
+                    y,
+                    y.Orders.Min(z => z.OrderDate)
+                ));
         }
 
         public static IEnumerable<(Customer customer, DateTime dateOfEntry)> Linq5(
