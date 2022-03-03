@@ -9,7 +9,10 @@ namespace Task1
     {
         public static IEnumerable<Customer> Linq1(IEnumerable<Customer> customers, decimal limit)
         {
-            return customers.Select(x => x).Where(y => y.Orders.Sum(z => z.Total) > limit);
+            return customers
+                .Select(x => x)
+                .Where(y => y.Orders
+                .Sum(z => z.Total) > limit);
         }
 
         public static IEnumerable<(Customer customer, IEnumerable<Supplier> suppliers)> Linq2(
@@ -17,7 +20,12 @@ namespace Task1
             IEnumerable<Supplier> suppliers
         )
         {
-            throw new NotImplementedException();
+            return customers
+                .Select(x =>
+                (
+                    x,
+                    suppliers.Where(y => y.City == x.City && y.Country == x.Country)
+                ));
         }
 
         public static IEnumerable<(Customer customer, IEnumerable<Supplier> suppliers)> Linq2UsingGroup(
@@ -25,7 +33,13 @@ namespace Task1
             IEnumerable<Supplier> suppliers
         )
         {
-            throw new NotImplementedException();
+            return customers.GroupBy(x => new { x.Country, x.City })
+                .SelectMany(y => y)
+                .Select(z =>
+                (
+                    z,
+                    suppliers.Where(w => w.City == z.City && w.Country == z.Country)
+                ));
         }
 
         public static IEnumerable<Customer> Linq3(IEnumerable<Customer> customers, decimal limit)
