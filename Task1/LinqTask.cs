@@ -39,8 +39,7 @@ namespace Task1
                 .Select(z =>
                 (
                     z,
-                    suppliers
-                    .Where(w => w.City == z.City && w.Country == z.Country)
+                    suppliers.Where(w => w.City == z.City && w.Country == z.Country)
                 ));
         }
 
@@ -68,7 +67,24 @@ namespace Task1
             IEnumerable<Customer> customers
         )
         {
-            throw new NotImplementedException();
+            return customers
+                .Where(x => x.Orders.Any())
+                .Select(y => new
+                {
+                    Customer = y,
+                    y.CompanyName,
+                    FirstOrder = y.Orders.Min(m => m.OrderDate),
+                    OrdersSum = y.Orders.Sum(s => s.Total)
+                })
+                .OrderBy(z => z.FirstOrder.Year)
+                .ThenBy(w => w.FirstOrder.Month)
+                .ThenByDescending(q => q.OrdersSum)
+                .ThenBy(v => v.CompanyName)
+                .Select(g =>
+                (
+                    g.Customer,
+                    g.FirstOrder
+                ));
         }
 
         public static IEnumerable<Customer> Linq6(IEnumerable<Customer> customers)
@@ -93,21 +109,21 @@ namespace Task1
 		            price - 19.0000
              */
 
-            var result = products
+            return products
                 .GroupBy(x => x.Category)
                 .Select(y => new Linq7CategoryGroup
                 {
                     Category = y.Key,
-                    UnitsInStockGroup = y.GroupBy(z => z.UnitsInStock)
+                    UnitsInStockGroup = y
+                        .GroupBy(z => z.UnitsInStock)
                         .Select(w => new Linq7UnitsInStockGroup
                         {
                             UnitsInStock = w.Key,
-                            Prices = w.Select(q => q.UnitPrice)
+                            Prices = w
+                                .Select(q => q.UnitPrice)
                                 .OrderBy(v => v)
                         })
                 });
-
-            return result;
         }
 
         public static IEnumerable<(decimal category, IEnumerable<Product> products)> Linq8(
@@ -118,15 +134,14 @@ namespace Task1
         )
         {
             return products
-               .GroupBy(x => x.UnitPrice <= cheap ? cheap
-               : x.UnitPrice <= middle ? middle : expensive)
+               .GroupBy(x => x.UnitPrice <= cheap ? cheap : x.UnitPrice <= middle ? middle : expensive)
                .Select(y =>
                (
-               y.Key,
-               y.Select(z => z)
+                   y.Key,
+                   y.Select(z => z)
                ));
         }
-
+        
         public static IEnumerable<(string city, int averageIncome, int averageIntensity)> Linq9(
             IEnumerable<Customer> customers
         )
