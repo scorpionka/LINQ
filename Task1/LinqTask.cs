@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Task1.DoNotChange;
 
 namespace Task1
@@ -8,7 +9,10 @@ namespace Task1
     {
         public static IEnumerable<Customer> Linq1(IEnumerable<Customer> customers, decimal limit)
         {
-            throw new NotImplementedException();
+            return customers
+                .Select(x => x)
+                .Where(y => y.Orders
+                .Sum(z => z.Total) > limit);
         }
 
         public static IEnumerable<(Customer customer, IEnumerable<Supplier> suppliers)> Linq2(
@@ -16,7 +20,12 @@ namespace Task1
             IEnumerable<Supplier> suppliers
         )
         {
-            throw new NotImplementedException();
+            return customers
+                .Select(x =>
+                (
+                    x,
+                    suppliers.Where(y => y.City == x.City && y.Country == x.Country)
+                ));
         }
 
         public static IEnumerable<(Customer customer, IEnumerable<Supplier> suppliers)> Linq2UsingGroup(
@@ -24,31 +33,67 @@ namespace Task1
             IEnumerable<Supplier> suppliers
         )
         {
-            throw new NotImplementedException();
+            return customers
+                .GroupBy(x => new { x.Country, x.City })
+                .SelectMany(y => y)
+                .Select(z =>
+                (
+                    z,
+                    suppliers.Where(w => w.City == z.City && w.Country == z.Country)
+                ));
         }
 
         public static IEnumerable<Customer> Linq3(IEnumerable<Customer> customers, decimal limit)
         {
-            throw new NotImplementedException();
+            return customers
+                .Where(x => x.Orders
+                .Any(y => y.Total > limit));
         }
 
         public static IEnumerable<(Customer customer, DateTime dateOfEntry)> Linq4(
             IEnumerable<Customer> customers
         )
         {
-            throw new NotImplementedException();
+            return customers
+                .Where(x => x.Orders.Any())
+                .Select(y =>
+                (
+                    y,
+                    y.Orders.Min(z => z.OrderDate)
+                ));
         }
 
         public static IEnumerable<(Customer customer, DateTime dateOfEntry)> Linq5(
             IEnumerable<Customer> customers
         )
         {
-            throw new NotImplementedException();
+            return customers
+                .Where(x => x.Orders.Any())
+                .Select(y => new
+                {
+                    Customer = y,
+                    y.CompanyName,
+                    FirstOrder = y.Orders.Min(m => m.OrderDate),
+                    OrdersSum = y.Orders.Sum(s => s.Total)
+                })
+                .OrderBy(z => z.FirstOrder.Year)
+                .ThenBy(w => w.FirstOrder.Month)
+                .ThenByDescending(q => q.OrdersSum)
+                .ThenBy(v => v.CompanyName)
+                .Select(g =>
+                (
+                    g.Customer,
+                    g.FirstOrder
+                ));
         }
 
         public static IEnumerable<Customer> Linq6(IEnumerable<Customer> customers)
         {
-            throw new NotImplementedException();
+            return customers
+                .Where(x => x.PostalCode != null
+                    && x.PostalCode.Any(y => y < '0' || y > '9')
+                    || string.IsNullOrWhiteSpace(x.Region)
+                    || x.Phone.FirstOrDefault() != '(');
         }
 
         public static IEnumerable<Linq7CategoryGroup> Linq7(IEnumerable<Product> products)
@@ -64,7 +109,21 @@ namespace Task1
 		            price - 19.0000
              */
 
-            throw new NotImplementedException();
+            return products
+                .GroupBy(x => x.Category)
+                .Select(y => new Linq7CategoryGroup
+                {
+                    Category = y.Key,
+                    UnitsInStockGroup = y
+                        .GroupBy(z => z.UnitsInStock)
+                        .Select(w => new Linq7UnitsInStockGroup
+                        {
+                            UnitsInStock = w.Key,
+                            Prices = w
+                                .Select(q => q.UnitPrice)
+                                .OrderBy(v => v)
+                        })
+                });
         }
 
         public static IEnumerable<(decimal category, IEnumerable<Product> products)> Linq8(
@@ -74,19 +133,36 @@ namespace Task1
             decimal expensive
         )
         {
-            throw new NotImplementedException();
+            return products
+               .GroupBy(x => x.UnitPrice <= cheap ? cheap : x.UnitPrice <= middle ? middle : expensive)
+               .Select(y =>
+               (
+                   y.Key,
+                   y.Select(z => z)
+               ));
         }
-
+        
         public static IEnumerable<(string city, int averageIncome, int averageIntensity)> Linq9(
             IEnumerable<Customer> customers
         )
         {
-            throw new NotImplementedException();
+            return customers
+                .GroupBy(x => x.City)
+                .Select(y =>
+                (
+                    y.Key,
+                    (int)Math.Round(y.Average(z => z.Orders.Sum(w => w.Total))),
+                    (int)y.Average(q => q.Orders.Length)
+                ));
         }
 
         public static string Linq10(IEnumerable<Supplier> suppliers)
         {
-            throw new NotImplementedException();
+            return string.Join("", suppliers
+                .Select(x => x.Country)
+                .Distinct()
+                .OrderBy(y => y.Count())
+                .ThenBy(z => z));
         }
     }
 }
