@@ -33,7 +33,8 @@ namespace Task1
             IEnumerable<Supplier> suppliers
         )
         {
-            return customers.GroupBy(x => new { x.Country, x.City })
+            return customers
+                .GroupBy(x => new { x.Country, x.City })
                 .SelectMany(y => y)
                 .Select(z =>
                 (
@@ -54,7 +55,8 @@ namespace Task1
             IEnumerable<Customer> customers
         )
         {
-            return customers.Where(x => x.Orders.Any())
+            return customers
+                .Where(x => x.Orders.Any())
                 .Select(y =>
                 (
                     y,
@@ -71,7 +73,11 @@ namespace Task1
 
         public static IEnumerable<Customer> Linq6(IEnumerable<Customer> customers)
         {
-            throw new NotImplementedException();
+            return customers
+                .Where(x => x.PostalCode != null
+                    && x.PostalCode.Any(y => y < '0' || y > '9')
+                    || string.IsNullOrWhiteSpace(x.Region)
+                    || x.Phone.FirstOrDefault() != '(');
         }
 
         public static IEnumerable<Linq7CategoryGroup> Linq7(IEnumerable<Product> products)
@@ -97,19 +103,37 @@ namespace Task1
             decimal expensive
         )
         {
-            throw new NotImplementedException();
+            return products
+               .GroupBy(x => x.UnitPrice <= cheap ? cheap
+               : x.UnitPrice <= middle ? middle : expensive)
+               .Select(y =>
+               (
+               y.Key,
+               y.Select(z => z)
+               ));
         }
 
         public static IEnumerable<(string city, int averageIncome, int averageIntensity)> Linq9(
             IEnumerable<Customer> customers
         )
         {
-            throw new NotImplementedException();
+            return customers
+                .GroupBy(x => x.City)
+                .Select(y =>
+                (
+                    y.Key,
+                    (int)Math.Round(y.Average(z => z.Orders.Sum(w => w.Total))),
+                    (int)y.Average(q => q.Orders.Length)
+                ));
         }
 
         public static string Linq10(IEnumerable<Supplier> suppliers)
         {
-            throw new NotImplementedException();
+            return string.Join("", suppliers
+                .Select(x => x.Country)
+                .Distinct()
+                .OrderBy(y => y.Count())
+                .ThenBy(z => z));
         }
     }
 }
